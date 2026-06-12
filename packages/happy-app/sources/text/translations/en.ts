@@ -232,8 +232,8 @@ export const en: TranslationStructure = {
         disableAnalytics: 'Disable Analytics',
         analyticsDisabled: 'All tracking and telemetry disabled',
         analyticsEnabled: 'Anonymous usage analytics active',
-        imageUpload: 'Image Upload',
-        imageUploadSubtitle: 'Attach images to messages for Claude to analyze',
+        imageUpload: 'Attachments',
+        imageUploadSubtitle: 'Attach images and files to messages for Claude to analyze',
     },
 
     errors: {

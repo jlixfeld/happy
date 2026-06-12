@@ -218,8 +218,8 @@ export const zhHant: TranslationStructure = {
         disableAnalytics: '停用分析',
         analyticsDisabled: '所有追蹤和遙測已停用',
         analyticsEnabled: '匿名使用分析已啟用',
-        imageUpload: '圖片上傳',
-        imageUploadSubtitle: '將圖片附加到訊息中讓 Claude 分析',
+        imageUpload: '附件',
+        imageUploadSubtitle: '在訊息中附加圖片和檔案供 Claude 分析',
     },
 
     errors: {
@@ -971,8 +971,8 @@ export const zhHant: TranslationStructure = {
     imageUpload: {
         permissionTitle: '存取照片圖庫',
         permissionMessage: '允許存取您的照片圖庫以在訊息中附加圖片。',
-        cameraPermissionTitle: 'Camera Access',
-        cameraPermissionMessage: 'Allow camera access to take photos to attach to messages.',
+        cameraPermissionTitle: '相機權限',
+        cameraPermissionMessage: '允許存取相機以拍攝照片並附加到訊息中。',
         limitTitle: '已達到圖片限制',
         limitMessage: ({ max }: { max: number }) => `每則訊息最多可附加 ${max} 張圖片。`,
         fileTooLargeTitle: '檔案太大',
@@ -983,10 +983,10 @@ export const zhHant: TranslationStructure = {
             : `${count} 張圖片上傳失敗，未傳送。`,
         notSupportedTitle: '不支援圖片',
         notSupportedMessage: '此代理不支援圖片附件。僅傳送了文字。',
-        addTitle: 'Add Attachment',
-        optionLibrary: 'Photo Library',
-        optionCamera: 'Take Photo',
-        optionFiles: 'Choose File',
+        addTitle: '新增附件',
+        optionLibrary: '照片圖庫',
+        optionCamera: '拍照',
+        optionFiles: '選擇檔案',
     },
 
     feed: {

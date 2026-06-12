@@ -219,8 +219,8 @@ export const zhHans: TranslationStructure = {
         disableAnalytics: '禁用分析',
         analyticsDisabled: '所有跟踪和遥测已禁用',
         analyticsEnabled: '匿名使用分析已启用',
-        imageUpload: '图片上传',
-        imageUploadSubtitle: '将图片附加到消息中让 Claude 分析',
+        imageUpload: '附件',
+        imageUploadSubtitle: '在消息中附加图片和文件供 Claude 分析',
     },
 
     errors: {
@@ -972,8 +972,8 @@ export const zhHans: TranslationStructure = {
     imageUpload: {
         permissionTitle: '访问照片库',
         permissionMessage: '允许访问您的照片库以在消息中附加图片。',
-        cameraPermissionTitle: 'Camera Access',
-        cameraPermissionMessage: 'Allow camera access to take photos to attach to messages.',
+        cameraPermissionTitle: '相机权限',
+        cameraPermissionMessage: '允许访问相机以拍摄照片并附加到消息中。',
         limitTitle: '已达到图片限制',
         limitMessage: ({ max }: { max: number }) => `每条消息最多可附加 ${max} 张图片。`,
         fileTooLargeTitle: '文件过大',
@@ -984,10 +984,10 @@ export const zhHans: TranslationStructure = {
             : `${count} 张图片上传失败，未发送。`,
         notSupportedTitle: '不支持图片',
         notSupportedMessage: '该代理不支持图片附件。仅发送了文本。',
-        addTitle: 'Add Attachment',
-        optionLibrary: 'Photo Library',
-        optionCamera: 'Take Photo',
-        optionFiles: 'Choose File',
+        addTitle: '添加附件',
+        optionLibrary: '照片图库',
+        optionCamera: '拍照',
+        optionFiles: '选择文件',
     },
 
     feed: {

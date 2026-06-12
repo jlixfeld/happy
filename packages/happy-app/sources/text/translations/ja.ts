@@ -219,8 +219,8 @@ export const ja: TranslationStructure = {
         disableAnalytics: '分析を無効化',
         analyticsDisabled: 'すべてのトラッキングとテレメトリが無効',
         analyticsEnabled: '匿名の使用状況分析がアクティブ',
-        imageUpload: '画像アップロード',
-        imageUploadSubtitle: 'メッセージに画像を添付してClaudeに分析させる',
+        imageUpload: '添付ファイル',
+        imageUploadSubtitle: '画像やファイルをメッセージに添付して Claude に分析させる',
     },
 
     errors: {
@@ -973,8 +973,8 @@ export const ja: TranslationStructure = {
     imageUpload: {
         permissionTitle: 'フォトライブラリへのアクセス',
         permissionMessage: 'メッセージに画像を添付するには、フォトライブラリへのアクセスを許可してください。',
-        cameraPermissionTitle: 'Camera Access',
-        cameraPermissionMessage: 'Allow camera access to take photos to attach to messages.',
+        cameraPermissionTitle: 'カメラへのアクセス',
+        cameraPermissionMessage: 'メッセージに添付する写真を撮るには、カメラへのアクセスを許可してください。',
         limitTitle: '画像の上限に達しました',
         limitMessage: ({ max }: { max: number }) => `1メッセージに添付できる画像は最大${max}枚です。`,
         fileTooLargeTitle: 'ファイルが大きすぎます',
@@ -985,10 +985,10 @@ export const ja: TranslationStructure = {
             : `${count}枚の画像をアップロードできず、送信されませんでした。`,
         notSupportedTitle: '画像はサポートされていません',
         notSupportedMessage: 'このエージェントは画像の添付に対応していません。テキストのみが送信されました。',
-        addTitle: 'Add Attachment',
-        optionLibrary: 'Photo Library',
-        optionCamera: 'Take Photo',
-        optionFiles: 'Choose File',
+        addTitle: '添付ファイルを追加',
+        optionLibrary: 'フォトライブラリ',
+        optionCamera: '写真を撮る',
+        optionFiles: 'ファイルを選択',
     },
 
     feed: {

@@ -217,8 +217,8 @@ export const pt: TranslationStructure = {
         disableAnalytics: 'Desativar análises',
         analyticsDisabled: 'Todo rastreamento e telemetria desativados',
         analyticsEnabled: 'Análises anônimas de uso ativas',
-        imageUpload: 'Upload de imagens',
-        imageUploadSubtitle: 'Anexe imagens às mensagens para Claude analisar',
+        imageUpload: 'Anexos',
+        imageUploadSubtitle: 'Anexe imagens e arquivos às mensagens para o Claude analisar',
     },
 
     errors: {
@@ -970,8 +970,8 @@ export const pt: TranslationStructure = {
     imageUpload: {
         permissionTitle: 'Acesso à biblioteca de fotos',
         permissionMessage: 'Permita o acesso à sua biblioteca de fotos para anexar imagens às mensagens.',
-        cameraPermissionTitle: 'Camera Access',
-        cameraPermissionMessage: 'Allow camera access to take photos to attach to messages.',
+        cameraPermissionTitle: 'Acesso à câmera',
+        cameraPermissionMessage: 'Permita o acesso à câmera para tirar fotos e anexá-las às mensagens.',
         limitTitle: 'Limite de imagens atingido',
         limitMessage: ({ max }: { max: number }) => `Você pode anexar até ${max} imagens por mensagem.`,
         fileTooLargeTitle: 'Arquivo muito grande',
@@ -982,10 +982,10 @@ export const pt: TranslationStructure = {
             : `Não foi possível enviar ${count} imagens e não foram enviadas.`,
         notSupportedTitle: 'Imagens não suportadas',
         notSupportedMessage: 'Este agente não suporta anexos de imagem. Apenas o texto foi enviado.',
-        addTitle: 'Add Attachment',
-        optionLibrary: 'Photo Library',
-        optionCamera: 'Take Photo',
-        optionFiles: 'Choose File',
+        addTitle: 'Adicionar anexo',
+        optionLibrary: 'Biblioteca de fotos',
+        optionCamera: 'Tirar foto',
+        optionFiles: 'Escolher arquivo',
     },
 
     feed: {
