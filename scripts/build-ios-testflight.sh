@@ -80,7 +80,12 @@ cat > "$BUILD_DIR/ExportOptions.plist" <<EOF
 EOF
 
 echo "==> Export"
-xcodebuild -exportArchive \
+# macOS 15+ ships openrsync at /usr/bin/rsync. Xcode's IPA packaging spawns
+# rsync which finds Homebrew GNU rsync in PATH; the two disagree on `-E`
+# (openrsync = extended-attrs, GNU = executability) and export fails with
+# "Copy failed". Force system PATH for export. (Lifted from the apple-build
+# plugin's canonical build-ios.sh.)
+PATH=/usr/bin:/bin:/usr/sbin:/sbin xcodebuild -exportArchive \
     -archivePath "$BUILD_DIR/Happy.xcarchive" \
     -exportPath "$BUILD_DIR/export" \
     -exportOptionsPlist "$BUILD_DIR/ExportOptions.plist" \
