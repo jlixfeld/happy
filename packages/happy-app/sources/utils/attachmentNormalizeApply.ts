@@ -11,6 +11,7 @@ import { type NormalizationPlan, NORMALIZE_JPEG_QUALITY } from './attachmentNorm
 export async function normalizeImage(
     uri: string,
     plan: NormalizationPlan,
+    originalMimeType: string | undefined,
 ): Promise<{ uri: string; width: number; height: number; mimeType: string } | null> {
     if (plan.action === 'passthrough') return null;
     const context = ImageManipulator.manipulate(uri);
@@ -18,6 +19,13 @@ export async function normalizeImage(
         context.resize(plan.resize);
     }
     const image = await context.renderAsync();
-    const result = await image.saveAsync({ format: SaveFormat.JPEG, compress: NORMALIZE_JPEG_QUALITY });
-    return { uri: result.uri, width: result.width, height: result.height, mimeType: 'image/jpeg' };
+    // PNGs stay PNG (lossless, keeps transparency — screenshots); everything
+    // else (HEIC, oversized JPEG, ...) re-encodes as JPEG.
+    const keepPng = originalMimeType === 'image/png';
+    const result = await image.saveAsync(
+        keepPng
+            ? { format: SaveFormat.PNG }
+            : { format: SaveFormat.JPEG, compress: NORMALIZE_JPEG_QUALITY },
+    );
+    return { uri: result.uri, width: result.width, height: result.height, mimeType: keepPng ? 'image/png' : 'image/jpeg' };
 }
