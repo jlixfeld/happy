@@ -9,11 +9,21 @@
 # Requires on disk: ~/.appstoreconnect/private_keys/AuthKey_<KEY_ID>.p8
 set -euo pipefail
 
-cd "$(dirname "$0")/../packages/happy-app"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+
+# Pull APPLE_ASC_KEY_ID / APPLE_ASC_ISSUER_ID from Infisical unless already set.
+if [[ -z "${APPLE_ASC_KEY_ID:-}" || -z "${APPLE_ASC_ISSUER_ID:-}" ]]; then
+    eval "$("$SCRIPT_DIR/fetch-secrets.sh" "$REPO_ROOT")"
+fi
+
+# Apple developer team (not a secret — same team as SoundSpotter/Governor).
+APPLE_TEAM_ID="${APPLE_TEAM_ID:-9V7672H2GA}"
+
+cd "$REPO_ROOT/packages/happy-app"
 
 : "${APPLE_ASC_KEY_ID:?APPLE_ASC_KEY_ID not set}"
 : "${APPLE_ASC_ISSUER_ID:?APPLE_ASC_ISSUER_ID not set}"
-: "${APPLE_TEAM_ID:?APPLE_TEAM_ID not set}"
 
 P8_PATH="$HOME/.appstoreconnect/private_keys/AuthKey_${APPLE_ASC_KEY_ID}.p8"
 [[ -f "$P8_PATH" ]] || { echo "ERROR: ASC API key not found at $P8_PATH" >&2; exit 1; }
