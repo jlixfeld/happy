@@ -11,6 +11,7 @@ import {
     ScrollView,
     LayoutAnimation,
     ActivityIndicator,
+    Keyboard,
     TextInputSelectionChangeEventData,
     NativeSyntheticEvent,
     Image as RNImage,
@@ -60,6 +61,7 @@ import { isRunningOnMac } from '@/utils/platform';
 import { getNewSessionSidebarLayout } from '@/utils/newSessionSidebarLayout';
 import { getAgentPickerItems, getModePickerItems } from '@/utils/newSessionPickerItems';
 import { resolveAgentDefaultConfig } from '@/sync/agentDefaults';
+import { filterPickerItems } from '@/utils/filterPickerItems';
 
 // Agent icon assets
 const agentIcons = {
@@ -325,6 +327,7 @@ function PathPickerContent({
     onChangeValue,
     onDone,
     embedded = false,
+    fillHeight = false,
 }: {
     title: string;
     items: PickerItem[];
@@ -333,6 +336,7 @@ function PathPickerContent({
     onChangeValue: (value: string) => void;
     onDone?: () => void;
     embedded?: boolean;
+    fillHeight?: boolean;
 }) {
     const { theme } = useUnistyles();
     const inputRef = React.useRef<TextInput>(null);
@@ -345,6 +349,28 @@ function PathPickerContent({
         }, 50);
         return () => clearTimeout(timeout);
     }, []);
+
+    // Track the keyboard so the recent list can pad itself clear of it. The
+    // path picker renders inside a modal sheet on native, which the screen's
+    // KeyboardAvoidingView doesn't reach, so the keyboard would otherwise
+    // float over the list. Web has no software keyboard to account for.
+    const [keyboardHeight, setKeyboardHeight] = React.useState(0);
+    React.useEffect(() => {
+        if (Platform.OS === 'web') {
+            return;
+        }
+        const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+        const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+        const showSub = Keyboard.addListener(showEvent, (e) => setKeyboardHeight(e.endCoordinates?.height ?? 0));
+        const hideSub = Keyboard.addListener(hideEvent, () => setKeyboardHeight(0));
+        return () => {
+            showSub.remove();
+            hideSub.remove();
+        };
+    }, []);
+
+    // Typing in the path field doubles as a filter over the recent projects.
+    const filteredItems = React.useMemo(() => filterPickerItems(items, currentValue), [items, currentValue]);
 
     const matchedItemKey = React.useMemo(() => {
         const normalizedValue = normalizePathForComparison(currentValue, homeDir);
@@ -378,7 +404,7 @@ function PathPickerContent({
     const doneIconColor = theme.colors.header.tint;
 
     return (
-        <View style={[pickerStyles.container, embedded && pickerStyles.embeddedContainer]}>
+        <View style={[pickerStyles.container, embedded && pickerStyles.embeddedContainer, fillHeight && pickerStyles.containerFill]}>
             {!embedded && (
                 <View style={pickerStyles.titleRow}>
                     <Text style={[pickerStyles.title, { color: theme.colors.text }]}>{title}</Text>
@@ -459,11 +485,12 @@ function PathPickerContent({
             </Text>
 
             <ScrollView
-                style={[pickerStyles.optionList, embedded && pickerStyles.embeddedOptionList]}
-                contentContainerStyle={embedded && pickerStyles.embeddedOptionListContent}
+                style={[pickerStyles.optionList, embedded && pickerStyles.embeddedOptionList, fillHeight && pickerStyles.optionListFill]}
+                contentContainerStyle={[embedded && pickerStyles.embeddedOptionListContent, { paddingBottom: keyboardHeight }]}
                 keyboardShouldPersistTaps="handled"
+                keyboardDismissMode="none"
             >
-                {items.map((item) => {
+                {filteredItems.map((item) => {
                     const isSelected = item.key === matchedItemKey;
 
                     return (
@@ -497,9 +524,9 @@ function PathPickerContent({
                     );
                 })}
 
-                {items.length === 0 && (
+                {filteredItems.length === 0 && (
                     <Text style={[pickerStyles.emptyText, { color: theme.colors.textSecondary }]}>
-                        no recent projects yet
+                        {items.length === 0 ? 'no recent projects yet' : 'no matches'}
                     </Text>
                 )}
             </ScrollView>
@@ -1437,6 +1464,7 @@ function NewSessionScreen() {
                             homeDir={selectedHomeDir}
                             onChangeValue={setSelectedPath}
                             onDone={() => setActivePicker(null)}
+                            fillHeight
                         />
                     ) : pickerData ? (
                         <PickerContent {...pickerData} onSelect={handlePickerSelect} />
@@ -1798,6 +1826,9 @@ const pickerStyles = {
         paddingHorizontal: 16,
         paddingBottom: 8,
     } as const,
+    containerFill: {
+        flex: 1,
+    } as const,
     embeddedContainer: {
         width: '100%',
         maxWidth: '100%',
@@ -1944,6 +1975,10 @@ const pickerStyles = {
     } as const,
     optionList: {
         flexGrow: 0,
+        flexShrink: 1,
+    } as const,
+    optionListFill: {
+        flexGrow: 1,
         flexShrink: 1,
     } as const,
     embeddedOptionList: {
