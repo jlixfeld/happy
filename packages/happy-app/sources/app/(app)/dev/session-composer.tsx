@@ -96,6 +96,8 @@ function getPermissionStyle(key: string): PermissionStyle | null {
         case 'acceptEdits':
         case 'auto_edit':
             return { color: '#A78BFA', icon: 'play-forward' };
+        case 'auto':
+            return { color: '#34D399', icon: 'play-forward' };
         case 'plan':
             return { color: '#5EABA4', icon: 'pause' };
         case 'dontAsk':
