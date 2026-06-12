@@ -4,3 +4,6 @@
 
 expo-env.d.ts
 # @end expo-cli
+
+# Local TestFlight build artifacts
+build-testflight/
