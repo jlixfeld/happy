@@ -990,6 +990,9 @@ export const ja: TranslationStructure = {
         optionLibrary: 'フォトライブラリ',
         optionCamera: '写真を撮る',
         optionFiles: 'ファイルを選択',
+        optionPaste: 'クリップボードから貼り付け',
+        pasteFailedTitle: '貼り付けに失敗しました',
+        pasteFailedMessage: 'クリップボードから画像を読み取れませんでした。',
     },
 
     feed: {

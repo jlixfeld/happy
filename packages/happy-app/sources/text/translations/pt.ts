@@ -987,6 +987,9 @@ export const pt: TranslationStructure = {
         optionLibrary: 'Biblioteca de fotos',
         optionCamera: 'Tirar foto',
         optionFiles: 'Escolher arquivo',
+        optionPaste: 'Colar da área de transferência',
+        pasteFailedTitle: 'Falha ao colar',
+        pasteFailedMessage: 'Não foi possível ler uma imagem da área de transferência.',
     },
 
     feed: {

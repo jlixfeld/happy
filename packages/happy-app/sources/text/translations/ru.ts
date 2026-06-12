@@ -1017,6 +1017,9 @@ export const ru: TranslationStructure = {
         optionLibrary: 'Фототека',
         optionCamera: 'Сделать фото',
         optionFiles: 'Выбрать файл',
+        optionPaste: 'Вставить из буфера обмена',
+        pasteFailedTitle: 'Не удалось вставить',
+        pasteFailedMessage: 'Не удалось прочитать изображение из буфера обмена.',
     },
 
     feed: {

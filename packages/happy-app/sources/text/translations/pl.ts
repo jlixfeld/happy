@@ -1018,6 +1018,9 @@ export const pl: TranslationStructure = {
         optionLibrary: 'Biblioteka zdjęć',
         optionCamera: 'Zrób zdjęcie',
         optionFiles: 'Wybierz plik',
+        optionPaste: 'Wklej ze schowka',
+        pasteFailedTitle: 'Wklejanie nie powiodło się',
+        pasteFailedMessage: 'Nie udało się odczytać obrazu ze schowka.',
     },
 
     feed: {

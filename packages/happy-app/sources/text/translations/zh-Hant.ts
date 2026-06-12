@@ -988,6 +988,9 @@ export const zhHant: TranslationStructure = {
         optionLibrary: '照片圖庫',
         optionCamera: '拍照',
         optionFiles: '選擇檔案',
+        optionPaste: '從剪貼簿貼上',
+        pasteFailedTitle: '貼上失敗',
+        pasteFailedMessage: '無法從剪貼簿讀取圖片。',
     },
 
     feed: {

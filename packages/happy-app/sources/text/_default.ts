@@ -239,6 +239,9 @@ export const en = {
         optionLibrary: 'Photo Library',
         optionCamera: 'Take Photo',
         optionFiles: 'Choose File',
+        optionPaste: 'Paste from Clipboard',
+        pasteFailedTitle: 'Paste Failed',
+        pasteFailedMessage: 'Could not read an image from the clipboard.',
     },
 
     errors: {

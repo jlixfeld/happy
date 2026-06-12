@@ -987,6 +987,9 @@ export const it: TranslationStructure = {
         optionLibrary: 'Libreria foto',
         optionCamera: 'Scatta foto',
         optionFiles: 'Scegli file',
+        optionPaste: 'Incolla dagli appunti',
+        pasteFailedTitle: 'Incolla non riuscito',
+        pasteFailedMessage: 'Impossibile leggere un\'immagine dagli appunti.',
     },
 
     feed: {

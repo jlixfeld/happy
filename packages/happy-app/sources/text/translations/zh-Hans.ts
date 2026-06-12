@@ -989,6 +989,9 @@ export const zhHans: TranslationStructure = {
         optionLibrary: '照片图库',
         optionCamera: '拍照',
         optionFiles: '选择文件',
+        optionPaste: '从剪贴板粘贴',
+        pasteFailedTitle: '粘贴失败',
+        pasteFailedMessage: '无法从剪贴板读取图片。',
     },
 
     feed: {

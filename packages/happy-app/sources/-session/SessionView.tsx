@@ -477,19 +477,26 @@ function SessionViewLoaded({ sessionId, session }: { sessionId: string, session:
 
     // Image attachment state (expImageUpload feature flag)
     const expImageUpload = useSetting('expImageUpload');
-    const { selectedImages, pickImages, takePhoto, pickFiles, removeImage, clearImages, addImages } = useImagePicker();
-    const handlePickAttachment = React.useCallback(() => {
+    const { selectedImages, pickImages, takePhoto, pickFiles, pasteImage, removeImage, clearImages, addImages } = useImagePicker();
+    const handlePickAttachment = React.useCallback(async () => {
         if (Platform.OS === 'web') {
             pickImages();
             return;
         }
+        // Only surface the paste row when the clipboard actually holds an image.
+        // hasImageAsync is silent (no iOS paste banner); the banner only fires
+        // later if the user taps Paste, which calls getImageAsync.
+        const hasClipboardImage = await Clipboard.hasImageAsync().catch(() => false);
         Modal.alert(t('imageUpload.addTitle'), undefined, [
             { text: t('imageUpload.optionLibrary'), onPress: () => { pickImages(); } },
             { text: t('imageUpload.optionCamera'), onPress: () => { takePhoto(); } },
             { text: t('imageUpload.optionFiles'), onPress: () => { pickFiles(); } },
-            { text: t('common.cancel'), style: 'cancel' },
+            ...(hasClipboardImage
+                ? [{ text: t('imageUpload.optionPaste'), onPress: () => { pasteImage(); } }]
+                : []),
+            { text: t('common.cancel'), style: 'cancel' as const },
         ]);
-    }, [pickImages, takePhoto, pickFiles]);
+    }, [pickImages, takePhoto, pickFiles, pasteImage]);
 
     // ChatComposer owns the message state + useDraft subscription. We only
     // hold an imperative handle so handleSend can read the live text and

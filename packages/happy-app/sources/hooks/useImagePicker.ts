@@ -17,6 +17,9 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
+import * as Clipboard from 'expo-clipboard';
+import { writeAsStringAsync, cacheDirectory, EncodingType } from 'expo-file-system/legacy';
+import { randomUUID } from 'expo-crypto';
 import { Platform } from 'react-native';
 import { Modal } from '@/modal';
 import { generateThumbhash } from '@/utils/thumbhash';
@@ -35,6 +38,7 @@ type UseImagePickerResult = {
     pickImages: () => Promise<void>;
     takePhoto: () => Promise<void>;
     pickFiles: () => Promise<void>;
+    pasteImage: () => Promise<void>;
     removeImage: (id: string) => void;
     clearImages: () => void;
     addImages: (images: AttachmentPreview[]) => void;
@@ -220,6 +224,53 @@ export function useImagePicker(): UseImagePickerResult {
         }
     }, []);
 
+    // Paste an image from the system clipboard (iOS/Android). Clipboard returns
+    // a base64 data URI; the upload path needs a file:// URI (readFileBytes uses
+    // expo-file-system), so we stage the bytes to cacheDirectory first, then run
+    // it through the same normalize/thumbhash pipeline as picked images.
+    const pasteImage = useCallback(async () => {
+        const remaining = MAX_IMAGES_PER_MESSAGE - selectedCountRef.current;
+        if (remaining <= 0) {
+            Modal.alert(
+                t('imageUpload.limitTitle'),
+                t('imageUpload.limitMessage', { max: MAX_IMAGES_PER_MESSAGE }),
+                [{ text: t('common.ok') }],
+            );
+            return;
+        }
+
+        const image = await Clipboard.getImageAsync({ format: 'jpeg' }).catch(() => null);
+        // null here means the clipboard image is gone or iOS denied paste access
+        // (the two are indistinguishable on iOS 16+).
+        if (!image) {
+            Modal.alert(
+                t('imageUpload.pasteFailedTitle'),
+                t('imageUpload.pasteFailedMessage'),
+                [{ text: t('common.ok') }],
+            );
+            return;
+        }
+
+        if (!cacheDirectory) return;
+        const base64 = image.data.replace(/^data:image\/\w+;base64,/, '');
+        const uri = `${cacheDirectory}happy-paste-${randomUUID()}.jpg`;
+        await writeAsStringAsync(uri, base64, { encoding: EncodingType.Base64 });
+
+        const asset = {
+            uri,
+            width: image.size.width,
+            height: image.size.height,
+            mimeType: 'image/jpeg',
+            fileName: `pasted_${Date.now()}.jpg`,
+            fileSize: undefined,
+        } as ImagePicker.ImagePickerAsset;
+
+        const previews = await assetsToPreviews([asset]);
+        if (previews.length > 0) {
+            setSelectedImages(prev => [...prev, ...previews].slice(0, MAX_IMAGES_PER_MESSAGE));
+        }
+    }, [assetsToPreviews]);
+
     const removeImage = useCallback((id: string) => {
         setSelectedImages(prev => prev.filter(img => img.id !== id));
     }, []);
@@ -236,5 +287,5 @@ export function useImagePicker(): UseImagePickerResult {
         });
     }, []);
 
-    return { selectedImages, pickImages, takePhoto, pickFiles, removeImage, clearImages, addImages };
+    return { selectedImages, pickImages, takePhoto, pickFiles, pasteImage, removeImage, clearImages, addImages };
 }

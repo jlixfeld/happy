@@ -989,6 +989,9 @@ export const es: TranslationStructure = {
         optionLibrary: 'Fototeca',
         optionCamera: 'Tomar foto',
         optionFiles: 'Elegir archivo',
+        optionPaste: 'Pegar desde el portapapeles',
+        pasteFailedTitle: 'Error al pegar',
+        pasteFailedMessage: 'No se pudo leer una imagen del portapapeles.',
     },
 
     feed: {

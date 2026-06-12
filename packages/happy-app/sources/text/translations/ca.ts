@@ -988,6 +988,9 @@ export const ca: TranslationStructure = {
         optionLibrary: 'Fototeca',
         optionCamera: 'Fes una foto',
         optionFiles: 'Tria un fitxer',
+        optionPaste: 'Enganxa des del porta-retalls',
+        pasteFailedTitle: 'Ha fallat enganxar',
+        pasteFailedMessage: 'No s\'ha pogut llegir cap imatge del porta-retalls.',
     },
 
     feed: {
