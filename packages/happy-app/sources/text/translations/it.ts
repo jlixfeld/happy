@@ -982,6 +982,10 @@ export const it: TranslationStructure = {
             : `Non è stato possibile caricare ${count} immagini e non sono state inviate.`,
         notSupportedTitle: 'Immagini non supportate',
         notSupportedMessage: 'Questo agente non supporta gli allegati immagine. È stato inviato solo il testo.',
+        addTitle: 'Add Attachment',
+        optionLibrary: 'Photo Library',
+        optionCamera: 'Take Photo',
+        optionFiles: 'Choose File',
     },
 
     feed: {

@@ -983,6 +983,10 @@ export const zhHant: TranslationStructure = {
             : `${count} 張圖片上傳失敗，未傳送。`,
         notSupportedTitle: '不支援圖片',
         notSupportedMessage: '此代理不支援圖片附件。僅傳送了文字。',
+        addTitle: 'Add Attachment',
+        optionLibrary: 'Photo Library',
+        optionCamera: 'Take Photo',
+        optionFiles: 'Choose File',
     },
 
     feed: {
