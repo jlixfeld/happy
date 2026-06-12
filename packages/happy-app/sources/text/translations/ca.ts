@@ -971,6 +971,8 @@ export const ca: TranslationStructure = {
     imageUpload: {
         permissionTitle: 'Accés a la biblioteca de fotos',
         permissionMessage: "Permet l'accés a la teva biblioteca de fotos per adjuntar imatges als missatges.",
+        cameraPermissionTitle: 'Camera Access',
+        cameraPermissionMessage: 'Allow camera access to take photos to attach to messages.',
         limitTitle: "Límit d'imatges assolit",
         limitMessage: ({ max }: { max: number }) => `Pots adjuntar fins a ${max} imatges per missatge.`,
         fileTooLargeTitle: 'Fitxer massa gran',

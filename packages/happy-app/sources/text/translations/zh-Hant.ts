@@ -971,6 +971,8 @@ export const zhHant: TranslationStructure = {
     imageUpload: {
         permissionTitle: '存取照片圖庫',
         permissionMessage: '允許存取您的照片圖庫以在訊息中附加圖片。',
+        cameraPermissionTitle: 'Camera Access',
+        cameraPermissionMessage: 'Allow camera access to take photos to attach to messages.',
         limitTitle: '已達到圖片限制',
         limitMessage: ({ max }: { max: number }) => `每則訊息最多可附加 ${max} 張圖片。`,
         fileTooLargeTitle: '檔案太大',

@@ -973,6 +973,8 @@ export const ja: TranslationStructure = {
     imageUpload: {
         permissionTitle: 'フォトライブラリへのアクセス',
         permissionMessage: 'メッセージに画像を添付するには、フォトライブラリへのアクセスを許可してください。',
+        cameraPermissionTitle: 'Camera Access',
+        cameraPermissionMessage: 'Allow camera access to take photos to attach to messages.',
         limitTitle: '画像の上限に達しました',
         limitMessage: ({ max }: { max: number }) => `1メッセージに添付できる画像は最大${max}枚です。`,
         fileTooLargeTitle: 'ファイルが大きすぎます',

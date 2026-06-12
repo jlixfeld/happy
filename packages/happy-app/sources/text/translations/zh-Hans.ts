@@ -972,6 +972,8 @@ export const zhHans: TranslationStructure = {
     imageUpload: {
         permissionTitle: '访问照片库',
         permissionMessage: '允许访问您的照片库以在消息中附加图片。',
+        cameraPermissionTitle: 'Camera Access',
+        cameraPermissionMessage: 'Allow camera access to take photos to attach to messages.',
         limitTitle: '已达到图片限制',
         limitMessage: ({ max }: { max: number }) => `每条消息最多可附加 ${max} 张图片。`,
         fileTooLargeTitle: '文件过大',

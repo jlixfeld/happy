@@ -1001,6 +1001,8 @@ export const pl: TranslationStructure = {
     imageUpload: {
         permissionTitle: 'Dostęp do biblioteki zdjęć',
         permissionMessage: 'Zezwól na dostęp do biblioteki zdjęć, aby załączać obrazy do wiadomości.',
+        cameraPermissionTitle: 'Camera Access',
+        cameraPermissionMessage: 'Allow camera access to take photos to attach to messages.',
         limitTitle: 'Osiągnięto limit obrazów',
         limitMessage: ({ max }: { max: number }) => `Możesz dołączyć maksymalnie ${max} obrazów na wiadomość.`,
         fileTooLargeTitle: 'Plik zbyt duży',

@@ -223,6 +223,8 @@ export const en = {
     imageUpload: {
         permissionTitle: 'Photo Library Access',
         permissionMessage: 'Allow access to your photo library to attach images to messages.',
+        cameraPermissionTitle: 'Camera Access',
+        cameraPermissionMessage: 'Allow camera access to take photos to attach to messages.',
         limitTitle: 'Image Limit Reached',
         limitMessage: ({ max }: { max: number }) => `You can attach up to ${max} images per message.`,
         fileTooLargeTitle: 'File Too Large',

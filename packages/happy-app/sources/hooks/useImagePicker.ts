@@ -1,8 +1,13 @@
 /**
- * Image picker hook for attaching images to messages.
+ * Image picker hook for attaching images and files to messages.
  *
- * Wraps expo-image-picker with permission handling and thumbhash generation.
- * Enforces limits: max 20 images per message, 10MB per file.
+ * Exposes:
+ *   - pickImages  — gallery picker (expo-image-picker), with HEIC→JPEG and
+ *                   downscale normalization via attachmentNormalize.ts
+ *   - takePhoto   — camera capture (expo-image-picker), same normalization
+ *   - pickFiles   — document picker (expo-document-picker), no normalization
+ *
+ * Enforces limits: max 20 attachments per message, 10MB per file.
  *
  * Note: fileSize from expo-image-picker is optional — some platforms do not
  * provide it (returns undefined → size=0). Such files pass the client-side
@@ -11,11 +16,14 @@
  */
 import { useState, useCallback, useRef, useEffect } from 'react';
 import * as ImagePicker from 'expo-image-picker';
+import * as DocumentPicker from 'expo-document-picker';
 import { Platform } from 'react-native';
 import { Modal } from '@/modal';
 import { generateThumbhash } from '@/utils/thumbhash';
 import { t } from '@/text';
 import type { AttachmentPreview } from '@/sync/attachmentTypes';
+import { planImageNormalization } from '@/utils/attachmentNormalize';
+import { normalizeImage } from '@/utils/attachmentNormalizeApply';
 
 export const MAX_IMAGES_PER_MESSAGE = 20;
 export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -25,6 +33,8 @@ export type { AttachmentPreview };
 type UseImagePickerResult = {
     selectedImages: AttachmentPreview[];
     pickImages: () => Promise<void>;
+    takePhoto: () => Promise<void>;
+    pickFiles: () => Promise<void>;
     removeImage: (id: string) => void;
     clearImages: () => void;
     addImages: (images: AttachmentPreview[]) => void;
@@ -53,6 +63,52 @@ export function useImagePicker(): UseImagePickerResult {
         return true;
     }, []);
 
+    // Shared by gallery + camera: enforce size cap, normalize (HEIC→JPEG,
+    // downscale >1568px — see attachmentNormalize.ts), generate thumbhash.
+    const assetsToPreviews = useCallback(async (assets: ImagePicker.ImagePickerAsset[]): Promise<AttachmentPreview[]> => {
+        const previews: AttachmentPreview[] = [];
+        for (const asset of assets) {
+            let { uri, width, height } = asset;
+            let mimeType = asset.mimeType ?? undefined;
+            let size = asset.fileSize ?? 0;
+
+            const plan = planImageNormalization({ mimeType, width, height });
+            const normalized = await normalizeImage(uri, plan, mimeType).catch(() => null);
+            if (normalized) {
+                uri = normalized.uri;
+                width = normalized.width;
+                height = normalized.height;
+                mimeType = normalized.mimeType;
+                size = 0; // unknown after re-encode; server enforces the cap
+            }
+
+            if (size > MAX_FILE_SIZE) {
+                Modal.alert(
+                    t('imageUpload.fileTooLargeTitle'),
+                    t('imageUpload.fileTooLargeMessage', { name: asset.fileName ?? 'image', maxMb: 10 }),
+                    [{ text: t('common.ok') }],
+                );
+                continue;
+            }
+
+            const thumbhash = (width > 0 && height > 0)
+                ? await generateThumbhash(uri, width, height)
+                : undefined;
+
+            previews.push({
+                id: `${Date.now()}_${Math.random().toString(36).slice(2)}`,
+                uri,
+                width,
+                height,
+                mimeType: mimeType ?? 'image/jpeg',
+                size,
+                name: asset.fileName ?? `image_${Date.now()}.jpg`,
+                thumbhash,
+            });
+        }
+        return previews;
+    }, []);
+
     const pickImages = useCallback(async () => {
         const hasPermission = await requestPermission();
         if (!hasPermission) return;
@@ -71,7 +127,7 @@ export function useImagePicker(): UseImagePickerResult {
             mediaTypes: ['images'], // expo-image-picker ~55: MediaTypeOptions deprecated
             allowsMultipleSelection: true,
             selectionLimit: remaining,
-            quality: 1, // no recompression — preserve original for Claude
+            quality: 1, // normalization handles size/format downstream
             exif: false,
         });
 
@@ -79,41 +135,90 @@ export function useImagePicker(): UseImagePickerResult {
 
         // On web, selectionLimit is not enforced by the browser — clamp here.
         const assets = result.assets.slice(0, remaining);
-        const previews: AttachmentPreview[] = [];
-
-        for (const asset of assets) {
-            const size = asset.fileSize ?? 0;
-
-            if (size > MAX_FILE_SIZE) {
-                Modal.alert(
-                    t('imageUpload.fileTooLargeTitle'),
-                    t('imageUpload.fileTooLargeMessage', { name: asset.fileName ?? 'image', maxMb: 10 }),
-                    [{ text: t('common.ok') }],
-                );
-                continue;
-            }
-
-            // Skip thumbhash if dimensions are unavailable (prevents divide-by-zero).
-            const thumbhash = (asset.width > 0 && asset.height > 0)
-                ? await generateThumbhash(asset.uri, asset.width, asset.height)
-                : undefined;
-
-            previews.push({
-                id: `${Date.now()}_${Math.random().toString(36).slice(2)}`,
-                uri: asset.uri,
-                width: asset.width,
-                height: asset.height,
-                mimeType: asset.mimeType ?? 'image/jpeg',
-                size,
-                name: asset.fileName ?? `image_${Date.now()}.jpg`,
-                thumbhash,
-            });
-        }
+        const previews = await assetsToPreviews(assets);
 
         if (previews.length > 0) {
             setSelectedImages(prev => [...prev, ...previews].slice(0, MAX_IMAGES_PER_MESSAGE));
         }
-    }, [requestPermission]);
+    }, [requestPermission, assetsToPreviews]);
+
+    const takePhoto = useCallback(async () => {
+        if (Platform.OS !== 'web') {
+            const { status } = await ImagePicker.requestCameraPermissionsAsync();
+            if (status !== 'granted') {
+                Modal.alert(
+                    t('imageUpload.cameraPermissionTitle'),
+                    t('imageUpload.cameraPermissionMessage'),
+                    [{ text: t('common.ok') }],
+                );
+                return;
+            }
+        }
+        if (MAX_IMAGES_PER_MESSAGE - selectedCountRef.current <= 0) {
+            Modal.alert(
+                t('imageUpload.limitTitle'),
+                t('imageUpload.limitMessage', { max: MAX_IMAGES_PER_MESSAGE }),
+                [{ text: t('common.ok') }],
+            );
+            return;
+        }
+
+        const result = await ImagePicker.launchCameraAsync({
+            mediaTypes: ['images'],
+            quality: 1, // normalization handles size/format downstream
+            exif: false,
+        });
+        if (result.canceled || !result.assets.length) return;
+
+        const previews = await assetsToPreviews(result.assets);
+        if (previews.length > 0) {
+            setSelectedImages(prev => [...prev, ...previews].slice(0, MAX_IMAGES_PER_MESSAGE));
+        }
+    }, [assetsToPreviews]);
+
+    const pickFiles = useCallback(async () => {
+        const remaining = MAX_IMAGES_PER_MESSAGE - selectedCountRef.current;
+        if (remaining <= 0) {
+            Modal.alert(
+                t('imageUpload.limitTitle'),
+                t('imageUpload.limitMessage', { max: MAX_IMAGES_PER_MESSAGE }),
+                [{ text: t('common.ok') }],
+            );
+            return;
+        }
+
+        const result = await DocumentPicker.getDocumentAsync({
+            multiple: true,
+            copyToCacheDirectory: true,
+        });
+        if (result.canceled || !result.assets) return;
+
+        const previews: AttachmentPreview[] = [];
+        for (const asset of result.assets.slice(0, remaining)) {
+            const size = asset.size ?? 0;
+            if (size > MAX_FILE_SIZE) {
+                Modal.alert(
+                    t('imageUpload.fileTooLargeTitle'),
+                    t('imageUpload.fileTooLargeMessage', { name: asset.name, maxMb: 10 }),
+                    [{ text: t('common.ok') }],
+                );
+                continue;
+            }
+            previews.push({
+                id: `${Date.now()}_${Math.random().toString(36).slice(2)}`,
+                uri: asset.uri,
+                width: 0,
+                height: 0,
+                mimeType: asset.mimeType ?? 'application/octet-stream',
+                size,
+                name: asset.name,
+                thumbhash: undefined,
+            });
+        }
+        if (previews.length > 0) {
+            setSelectedImages(prev => [...prev, ...previews].slice(0, MAX_IMAGES_PER_MESSAGE));
+        }
+    }, []);
 
     const removeImage = useCallback((id: string) => {
         setSelectedImages(prev => prev.filter(img => img.id !== id));
@@ -131,5 +236,5 @@ export function useImagePicker(): UseImagePickerResult {
         });
     }, []);
 
-    return { selectedImages, pickImages, removeImage, clearImages, addImages };
+    return { selectedImages, pickImages, takePhoto, pickFiles, removeImage, clearImages, addImages };
 }
