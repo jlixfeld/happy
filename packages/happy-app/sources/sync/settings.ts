@@ -101,7 +101,7 @@ export const settingsDefaults: Settings = {
     expResumeSession: false,
     fileDiffsSidebar: false,
     groupToolCalls: false,
-    expImageUpload: false,
+    expImageUpload: true, // local/testflight fork: attachments on by default
     reviewPromptAnswered: false,
     reviewPromptLikedApp: null,
     voiceAssistantLanguage: null,

@@ -9,7 +9,9 @@ const name = {
 const bundleId = {
     development: "com.slopus.happy.dev",
     preview: "com.slopus.happy.preview",
-    production: "com.ex3ndr.happy"
+    // local/testflight fork build: personal bundle ID (TestFlight-only).
+    // Upstream production is com.ex3ndr.happy.
+    production: "ca.lixfeld.happy"
 }[variant];
 // const stagingElevenLabsAgentId = 'agent_7801k2c0r5hjfraa1kdbytpvs6yt';
 const productionElevenLabsAgentId = 'agent_6701k211syvvegba4kt7m68nxjmw';
@@ -68,6 +70,7 @@ export default {
         ios: {
             supportsTablet: true,
             bundleIdentifier: bundleId,
+            buildNumber: process.env.HAPPY_BUILD_NUMBER ?? "1",
             config: {
                 usesNonExemptEncryption: false
             },
