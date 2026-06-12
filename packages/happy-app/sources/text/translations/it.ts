@@ -216,8 +216,8 @@ export const it: TranslationStructure = {
         disableAnalytics: 'Disabilita analisi',
         analyticsDisabled: 'Tutto il tracciamento e la telemetria disabilitati',
         analyticsEnabled: 'Analisi anonime di utilizzo attive',
-        imageUpload: 'Caricamento immagini',
-        imageUploadSubtitle: 'Allega immagini ai messaggi per farle analizzare da Claude',
+        imageUpload: 'Allegati',
+        imageUploadSubtitle: 'Allega immagini e file ai messaggi per l\'analisi di Claude',
     },
 
     errors: {
@@ -970,6 +970,8 @@ export const it: TranslationStructure = {
     imageUpload: {
         permissionTitle: 'Accesso alla libreria foto',
         permissionMessage: "Consenti l'accesso alla tua libreria foto per allegare immagini ai messaggi.",
+        cameraPermissionTitle: 'Accesso alla fotocamera',
+        cameraPermissionMessage: "Consenti l'accesso alla fotocamera per scattare foto da allegare ai messaggi.",
         limitTitle: 'Limite immagini raggiunto',
         limitMessage: ({ max }: { max: number }) => `Puoi allegare fino a ${max} immagini per messaggio.`,
         fileTooLargeTitle: 'File troppo grande',
@@ -980,6 +982,10 @@ export const it: TranslationStructure = {
             : `Non è stato possibile caricare ${count} immagini e non sono state inviate.`,
         notSupportedTitle: 'Immagini non supportate',
         notSupportedMessage: 'Questo agente non supporta gli allegati immagine. È stato inviato solo il testo.',
+        addTitle: 'Aggiungi allegato',
+        optionLibrary: 'Libreria foto',
+        optionCamera: 'Scatta foto',
+        optionFiles: 'Scegli file',
     },
 
     feed: {

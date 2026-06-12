@@ -204,8 +204,8 @@ export const ru: TranslationStructure = {
         disableAnalytics: 'Отключить аналитику',
         analyticsDisabled: 'Вся аналитика и телеметрия отключены',
         analyticsEnabled: 'Анонимная аналитика использования активна',
-        imageUpload: 'Загрузка изображений',
-        imageUploadSubtitle: 'Прикрепляйте изображения к сообщениям для анализа Claude',
+        imageUpload: 'Вложения',
+        imageUploadSubtitle: 'Прикрепляйте изображения и файлы к сообщениям для анализа Claude',
     },
 
     errors: {
@@ -1000,6 +1000,8 @@ export const ru: TranslationStructure = {
     imageUpload: {
         permissionTitle: 'Доступ к библиотеке фото',
         permissionMessage: 'Разрешите доступ к вашей библиотеке фото, чтобы прикреплять изображения к сообщениям.',
+        cameraPermissionTitle: 'Доступ к камере',
+        cameraPermissionMessage: 'Разрешите доступ к камере, чтобы делать фото и прикреплять их к сообщениям.',
         limitTitle: 'Достигнут лимит изображений',
         limitMessage: ({ max }: { max: number }) => `Можно прикрепить не более ${max} изображений на сообщение.`,
         fileTooLargeTitle: 'Файл слишком большой',
@@ -1010,6 +1012,10 @@ export const ru: TranslationStructure = {
             : `${count} изображений не удалось загрузить — они не были отправлены.`,
         notSupportedTitle: 'Изображения не поддерживаются',
         notSupportedMessage: 'Этот агент не поддерживает изображения. Отправлен только текст.',
+        addTitle: 'Добавить вложение',
+        optionLibrary: 'Фототека',
+        optionCamera: 'Сделать фото',
+        optionFiles: 'Выбрать файл',
     },
 
     feed: {

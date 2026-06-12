@@ -232,8 +232,8 @@ export const en: TranslationStructure = {
         disableAnalytics: 'Disable Analytics',
         analyticsDisabled: 'All tracking and telemetry disabled',
         analyticsEnabled: 'Anonymous usage analytics active',
-        imageUpload: 'Image Upload',
-        imageUploadSubtitle: 'Attach images to messages for Claude to analyze',
+        imageUpload: 'Attachments',
+        imageUploadSubtitle: 'Attach images and files to messages for Claude to analyze',
     },
 
     errors: {
@@ -986,6 +986,8 @@ export const en: TranslationStructure = {
     imageUpload: {
         permissionTitle: 'Photo Library Access',
         permissionMessage: 'Allow access to your photo library to attach images to messages.',
+        cameraPermissionTitle: 'Camera Access',
+        cameraPermissionMessage: 'Allow camera access to take photos to attach to messages.',
         limitTitle: 'Image Limit Reached',
         limitMessage: ({ max }: { max: number }) => `You can attach up to ${max} images per message.`,
         fileTooLargeTitle: 'File Too Large',
@@ -996,6 +998,10 @@ export const en: TranslationStructure = {
             : `${count} images could not be uploaded and were not sent.`,
         notSupportedTitle: 'Images Not Supported',
         notSupportedMessage: 'This agent does not support image attachments. Only the text was sent.',
+        addTitle: 'Add Attachment',
+        optionLibrary: 'Photo Library',
+        optionCamera: 'Take Photo',
+        optionFiles: 'Choose File',
     },
 
     feed: {

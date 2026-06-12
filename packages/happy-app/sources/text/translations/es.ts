@@ -218,8 +218,8 @@ export const es: TranslationStructure = {
         disableAnalytics: 'Desactivar analítica',
         analyticsDisabled: 'Todo el seguimiento y telemetría desactivados',
         analyticsEnabled: 'Analítica anónima de uso activa',
-        imageUpload: 'Subida de imágenes',
-        imageUploadSubtitle: 'Adjunta imágenes a los mensajes para que Claude las analice',
+        imageUpload: 'Adjuntos',
+        imageUploadSubtitle: 'Adjunta imágenes y archivos a los mensajes para que Claude los analice',
     },
 
     errors: {
@@ -972,6 +972,8 @@ export const es: TranslationStructure = {
     imageUpload: {
         permissionTitle: 'Acceso a la biblioteca de fotos',
         permissionMessage: 'Permite el acceso a tu biblioteca de fotos para adjuntar imágenes a los mensajes.',
+        cameraPermissionTitle: 'Acceso a la cámara',
+        cameraPermissionMessage: 'Permite el acceso a la cámara para tomar fotos y adjuntarlas a los mensajes.',
         limitTitle: 'Límite de imágenes alcanzado',
         limitMessage: ({ max }: { max: number }) => `Puedes adjuntar hasta ${max} imágenes por mensaje.`,
         fileTooLargeTitle: 'Archivo demasiado grande',
@@ -982,6 +984,10 @@ export const es: TranslationStructure = {
             : `No se pudieron subir ${count} imágenes y no se enviaron.`,
         notSupportedTitle: 'Imágenes no compatibles',
         notSupportedMessage: 'Este agente no admite imágenes adjuntas. Solo se envió el texto.',
+        addTitle: 'Añadir adjunto',
+        optionLibrary: 'Fototeca',
+        optionCamera: 'Tomar foto',
+        optionFiles: 'Elegir archivo',
     },
 
     feed: {

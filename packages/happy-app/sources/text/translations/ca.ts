@@ -218,8 +218,8 @@ export const ca: TranslationStructure = {
         disableAnalytics: 'Desactivar analítica',
         analyticsDisabled: 'Tot el seguiment i telemetria desactivats',
         analyticsEnabled: 'Analítica anònima d\'ús activa',
-        imageUpload: 'Pujada d\'imatges',
-        imageUploadSubtitle: 'Adjunta imatges als missatges perquè Claude les analitzi',
+        imageUpload: 'Fitxers adjunts',
+        imageUploadSubtitle: 'Adjunta imatges i fitxers als missatges perquè Claude els analitzi',
     },
 
     errors: {
@@ -971,6 +971,8 @@ export const ca: TranslationStructure = {
     imageUpload: {
         permissionTitle: 'Accés a la biblioteca de fotos',
         permissionMessage: "Permet l'accés a la teva biblioteca de fotos per adjuntar imatges als missatges.",
+        cameraPermissionTitle: 'Accés a la càmera',
+        cameraPermissionMessage: "Permet l'accés a la càmera per fer fotos i adjuntar-les als missatges.",
         limitTitle: "Límit d'imatges assolit",
         limitMessage: ({ max }: { max: number }) => `Pots adjuntar fins a ${max} imatges per missatge.`,
         fileTooLargeTitle: 'Fitxer massa gran',
@@ -981,6 +983,10 @@ export const ca: TranslationStructure = {
             : `No s'han pogut pujar ${count} imatges i no s'han enviat.`,
         notSupportedTitle: 'Imatges no compatibles',
         notSupportedMessage: 'Aquest agent no admet imatges adjuntes. Només s\'ha enviat el text.',
+        addTitle: 'Afegeix un fitxer adjunt',
+        optionLibrary: 'Fototeca',
+        optionCamera: 'Fes una foto',
+        optionFiles: 'Tria un fitxer',
     },
 
     feed: {

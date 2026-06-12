@@ -235,8 +235,8 @@ export const pl: TranslationStructure = {
         disableAnalytics: 'Wyłącz analitykę',
         analyticsDisabled: 'Wszystkie śledzenie i telemetria wyłączone',
         analyticsEnabled: 'Anonimowa analityka użytkowania aktywna',
-        imageUpload: 'Przesyłanie obrazów',
-        imageUploadSubtitle: 'Dołącz obrazy do wiadomości, aby Claude mógł je przeanalizować',
+        imageUpload: 'Załączniki',
+        imageUploadSubtitle: 'Dołączaj obrazy i pliki do wiadomości do analizy przez Claude',
     },
 
     errors: {
@@ -1001,6 +1001,8 @@ export const pl: TranslationStructure = {
     imageUpload: {
         permissionTitle: 'Dostęp do biblioteki zdjęć',
         permissionMessage: 'Zezwól na dostęp do biblioteki zdjęć, aby załączać obrazy do wiadomości.',
+        cameraPermissionTitle: 'Dostęp do aparatu',
+        cameraPermissionMessage: 'Zezwól na dostęp do aparatu, aby robić zdjęcia i dołączać je do wiadomości.',
         limitTitle: 'Osiągnięto limit obrazów',
         limitMessage: ({ max }: { max: number }) => `Możesz dołączyć maksymalnie ${max} obrazów na wiadomość.`,
         fileTooLargeTitle: 'Plik zbyt duży',
@@ -1011,6 +1013,10 @@ export const pl: TranslationStructure = {
             : `Nie udało się przesłać ${count} zdjęć i nie zostały wysłane.`,
         notSupportedTitle: 'Obrazy nieobsługiwane',
         notSupportedMessage: 'Ten agent nie obsługuje załączników obrazów. Wysłano tylko tekst.',
+        addTitle: 'Dodaj załącznik',
+        optionLibrary: 'Biblioteka zdjęć',
+        optionCamera: 'Zrób zdjęcie',
+        optionFiles: 'Wybierz plik',
     },
 
     feed: {
