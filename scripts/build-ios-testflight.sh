@@ -42,7 +42,7 @@ echo "==> Prebuild (APP_ENV=production, buildNumber=$HAPPY_BUILD_NUMBER)"
 # enables FrameProcessors → pod install fails on the missing podspec.
 APP_ENV=production FORCE_COLOR=0 npx expo prebuild --platform ios
 
-WORKSPACE=$(ls ios/*.xcworkspace | head -1)
+WORKSPACE=$(ls -d ios/*.xcworkspace | head -1)
 SCHEME=$(basename "$WORKSPACE" .xcworkspace)
 
 echo "==> Archive ($SCHEME)"
