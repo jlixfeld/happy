@@ -35,6 +35,15 @@ BUILD_DIR="$(pwd)/build-testflight"
 rm -rf "$BUILD_DIR" ios
 mkdir -p "$BUILD_DIR"
 
+# react-native-audio-api 0.8.x: Constants.h uses size_t without <cstddef>;
+# Xcode 26.5 clang rejects it. patch-package can't persist this under pnpm's
+# hoisted layout, so apply idempotently here.
+AUDIO_HDR="$REPO_ROOT/node_modules/react-native-audio-api/common/cpp/audioapi/core/Constants.h"
+if [[ -f "$AUDIO_HDR" ]] && ! grep -q '<cstddef>' "$AUDIO_HDR"; then
+    sed -i '' 's|#include <cmath>|#include <cmath>\n#include <cstddef>|' "$AUDIO_HDR"
+    echo "==> Patched react-native-audio-api Constants.h (<cstddef>)"
+fi
+
 echo "==> Prebuild (APP_ENV=production, buildNumber=$HAPPY_BUILD_NUMBER)"
 # FORCE_COLOR=0: expo's FORCE_COLOR=1 makes `node --print` emit ANSI-wrapped
 # "undefined" inside VisionCamera.podspec's worklets probe, which then
