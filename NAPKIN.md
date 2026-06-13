@@ -65,3 +65,33 @@
 **Rule:** When upstream main's typecheck is broken, build the CLI with pkgroll directly and restart the daemon; don't "fix" upstream codex types on a feature branch.
 
 ---
+
+## `auto` permission mode silently degrades to `default` (mobile prompts for everything)
+
+*2026-06-13 · packages/happy-cli/src/claude/utils/permissionHandler.ts + claudeRemoteLauncher.ts*
+
+**The problem:** Set the app to `auto`, yet Happy still prompts for non-safe commands (file writes, `uv sync && pytest`, code exec) that native Claude Code in `auto` runs without asking. `dontAsk` had no effect either, and flipping to `dangerously skip` mid-run *still* prompted. `auto`'s smarts are not in Happy — they're in the Claude binary's own ML permission classifier.
+
+**Dead ends (all disproven by driving the real `@anthropic-ai/claude-agent-sdk`):**
+- "auto is just an alias for default, so prompting is correct" — **false.** Direct SDK probe in `auto` auto-approves writes/exec/`rm -f`/`uv sync && pytest`; `default` prompts for them. The classifier is real and works through the `canUseTool` host callback (it only escalates the genuinely-risky `ask` bucket).
+- "providing a host `canUseTool` defeats the classifier" — false; classifier still pre-filters, host sees only `ask`.
+- "`mapToClaudeMode('auto')` downgrades to `default`" — false; `auto` isn't in the codex map, passes through unchanged. claudeRemote.ts:127 sends `auto` to `query()` correctly at construction.
+- model variant (`opus-4-8[1m]`), streaming input, `appendSystemPrompt`, the SessionStart hook settings file, a PreToolUse hook, `settingSources: [user,project,local]`, and runtime `setPermissionMode('auto')` — **none** break the classifier. All still auto-approve. The SDK side is bulletproof.
+
+**Root cause:** `handleModeChange(mode)` did *only* `this.permissionMode = mode`. It updated the handler's local field but never pushed to the running query — even though the `setPermissionMode` live-updater is wired (claudeRemoteLauncher.ts:~405) and used elsewhere (ExitPlanMode at permissionHandler.ts:~103). So the binary stays frozen at its spawn-time mode (classifier off), while `handleToolCall` — which has branches only for `bypassPermissions`/`acceptEdits`/`plan`, **no `auto` branch** — falls through to a prompt. The mode-hash (runClaude.ts:~404) also omits `permissionMode` (only `isPlan`), so a mode-only switch never restarts the query to re-pass it either.
+
+**The fix:** Map + push in `handleModeChange`:
+```ts
+const claudeMode = mapToClaudeMode(mode);
+this.permissionMode = claudeMode;                 // local bypass/acceptEdits fast-path matches Codex 'yolo' too
+this.setPermissionModeCallback?.(claudeMode).catch(e => logger.debug('…', e));  // re-arm the live binary
+```
+Subsumes upstream #1157 (which only maps the local field, doesn't fix `auto`).
+
+**Why it works:** `q.setPermissionMode()` re-arms the binary's classifier on the *running* query (proven: start `default`, switch to `auto` at init → subsequent writes auto-approve). Once armed, only the `ask` bucket reaches `handleToolCall`, where prompting is correct — so no `auto` branch is needed there.
+
+**Known limitation / follow-up:** Mode only reaches the CLI **attached to a user message** (`MessageQueue2` item carries `mode`; no standalone signal). `handleModeChange` is called only inside `nextMessage()` at turn boundaries. So switching mode *mid-turn* (agent already running a batch) does nothing until the next message — that's why `dangerously skip` still prompted mid-run. True mid-turn switching needs the unused `permission-mode-changed` event (apiSession.ts:~605) wired app→server→CLI.
+
+**Rule:** Permission-mode behavior lives in two places — the local `handleToolCall` branches **and** the Claude binary's classifier; any mode change must be pushed to the live query via `setPermissionMode`, not just stored locally, or `auto`/`dontAsk` silently die. And mode rides on messages only: mid-turn switches don't propagate.
+
+---
