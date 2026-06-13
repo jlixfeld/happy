@@ -10,6 +10,7 @@ import { PermissionResult } from "../sdk/types";
 import { Session } from "../session";
 import { EnhancedMode, PermissionMode } from "../loop";
 import { getToolDescriptor } from "./getToolDescriptor";
+import { mapToClaudeMode } from "./permissionMode";
 
 interface PermissionResponse {
     id: string;
@@ -54,7 +55,24 @@ export class PermissionHandler {
     }
 
     handleModeChange(mode: PermissionMode) {
-        this.permissionMode = mode;
+        // Normalize to Claude's SDK mode form. handleToolCall compares the
+        // local field against 'bypassPermissions'/'acceptEdits' by literal
+        // equality, so a Codex-flavoured mode (e.g. 'yolo') must be mapped or
+        // the local fast-path is missed.
+        const claudeMode = mapToClaudeMode(mode);
+        this.permissionMode = claudeMode;
+
+        // Push the change to the live Claude query as well. The `auto` mode is
+        // implemented entirely by the binary's own permission classifier —
+        // handleToolCall has no `auto` branch — so updating only the local
+        // field silently degrades `auto` (and `dontAsk`) to `default` and
+        // prompts for everything. setPermissionMode re-arms the running binary
+        // so its classifier decides, matching native Claude Code behaviour.
+        if (this.setPermissionModeCallback) {
+            this.setPermissionModeCallback(claudeMode).catch((err) => {
+                logger.debug('Failed to push permission mode to SDK:', err);
+            });
+        }
     }
 
     /**
