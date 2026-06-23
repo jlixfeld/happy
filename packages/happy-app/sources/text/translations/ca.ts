@@ -218,8 +218,8 @@ export const ca: TranslationStructure = {
         disableAnalytics: 'Desactivar analítica',
         analyticsDisabled: 'Tot el seguiment i telemetria desactivats',
         analyticsEnabled: 'Analítica anònima d\'ús activa',
-        imageUpload: 'Fitxers adjunts',
-        imageUploadSubtitle: 'Adjunta imatges i fitxers als missatges perquè Claude els analitzi',
+        imageUpload: 'Pujada d\'imatges',
+        imageUploadSubtitle: 'Adjunta imatges als missatges perquè els agents compatibles les analitzin',
     },
 
     errors: {
@@ -410,6 +410,13 @@ export const ca: TranslationStructure = {
             runIt: 'Executa\'l',
             scanQrCode: 'Escaneja el codi QR',
             openCamera: 'Obre la càmera',
+        },
+        agentGoalBar: {
+            currentGoal: 'Objectiu actual',
+            accessibilityLabel: ({ goal }: { goal: string }) => `Objectiu actual: ${goal}`,
+            clearGoal: 'Esborra objectiu',
+            stopGoal: 'Atura objectiu',
+            editGoal: 'Edita objectiu',
         },
     },
 
@@ -838,6 +845,7 @@ export const ca: TranslationStructure = {
         switchedToMode: ({ mode }: { mode: string }) => `S'ha canviat al mode ${mode}`,
         unknownEvent: 'Esdeveniment desconegut',
         usageLimitUntil: ({ time }: { time: string }) => `Límit d'ús assolit fins a ${time}`,
+        sentAsGoal: 'Sent as goal',
         unknownTime: 'temps desconegut',
     },
 
@@ -983,7 +991,7 @@ export const ca: TranslationStructure = {
             ? 'No s\'ha pogut pujar una imatge i no s\'ha enviat.'
             : `No s'han pogut pujar ${count} imatges i no s'han enviat.`,
         notSupportedTitle: 'Imatges no compatibles',
-        notSupportedMessage: 'Aquest agent no admet imatges adjuntes. Només s\'ha enviat el text.',
+        notSupportedMessage: 'Aquest agent no admet fitxers adjunts d\'imatge. Les imatges no s\'han enviat.',
         addTitle: 'Afegeix un fitxer adjunt',
         optionLibrary: 'Fototeca',
         optionCamera: 'Fes una foto',

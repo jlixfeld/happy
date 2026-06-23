@@ -217,8 +217,8 @@ export const pt: TranslationStructure = {
         disableAnalytics: 'Desativar análises',
         analyticsDisabled: 'Todo rastreamento e telemetria desativados',
         analyticsEnabled: 'Análises anônimas de uso ativas',
-        imageUpload: 'Anexos',
-        imageUploadSubtitle: 'Anexe imagens e arquivos às mensagens para o Claude analisar',
+        imageUpload: 'Upload de imagens',
+        imageUploadSubtitle: 'Anexe imagens às mensagens para que agentes compatíveis as analisem',
     },
 
     errors: {
@@ -409,6 +409,13 @@ export const pt: TranslationStructure = {
             runIt: 'Execute',
             scanQrCode: 'Escaneie o código QR',
             openCamera: 'Abrir câmera',
+        },
+        agentGoalBar: {
+            currentGoal: 'Objetivo atual',
+            accessibilityLabel: ({ goal }: { goal: string }) => `Objetivo atual: ${goal}`,
+            clearGoal: 'Limpar objetivo',
+            stopGoal: 'Parar objetivo',
+            editGoal: 'Editar objetivo',
         },
     },
 
@@ -837,6 +844,7 @@ export const pt: TranslationStructure = {
         switchedToMode: ({ mode }: { mode: string }) => `Mudou para o modo ${mode}`,
         unknownEvent: 'Evento desconhecido',
         usageLimitUntil: ({ time }: { time: string }) => `Limite de uso atingido até ${time}`,
+        sentAsGoal: 'Sent as goal',
         unknownTime: 'horário desconhecido',
     },
 
@@ -982,7 +990,7 @@ export const pt: TranslationStructure = {
             ? 'Não foi possível enviar uma imagem e não foi enviada.'
             : `Não foi possível enviar ${count} imagens e não foram enviadas.`,
         notSupportedTitle: 'Imagens não suportadas',
-        notSupportedMessage: 'Este agente não suporta anexos de imagem. Apenas o texto foi enviado.',
+        notSupportedMessage: 'Este agente não suporta anexos de imagem. As imagens não foram enviadas.',
         addTitle: 'Adicionar anexo',
         optionLibrary: 'Biblioteca de fotos',
         optionCamera: 'Tirar foto',

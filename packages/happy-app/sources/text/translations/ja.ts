@@ -219,8 +219,8 @@ export const ja: TranslationStructure = {
         disableAnalytics: '分析を無効化',
         analyticsDisabled: 'すべてのトラッキングとテレメトリが無効',
         analyticsEnabled: '匿名の使用状況分析がアクティブ',
-        imageUpload: '添付ファイル',
-        imageUploadSubtitle: '画像やファイルをメッセージに添付して Claude に分析させる',
+        imageUpload: '画像アップロード',
+        imageUploadSubtitle: '対応エージェントに分析させるため、メッセージに画像を添付する',
     },
 
     errors: {
@@ -411,6 +411,13 @@ export const ja: TranslationStructure = {
             runIt: '実行する',
             scanQrCode: 'QRコードをスキャン',
             openCamera: 'カメラを開く',
+        },
+        agentGoalBar: {
+            currentGoal: '現在の目標',
+            accessibilityLabel: ({ goal }: { goal: string }) => `現在の目標: ${goal}`,
+            clearGoal: '目標をクリア',
+            stopGoal: '目標を停止',
+            editGoal: '目標を編集',
         },
     },
 
@@ -839,6 +846,7 @@ export const ja: TranslationStructure = {
         switchedToMode: ({ mode }: { mode: string }) => `${mode}モードに切り替えました`,
         unknownEvent: '不明なイベント',
         usageLimitUntil: ({ time }: { time: string }) => `${time}まで使用制限中`,
+        sentAsGoal: 'Sent as goal',
         unknownTime: '不明な時間',
     },
 
@@ -985,7 +993,7 @@ export const ja: TranslationStructure = {
             ? '1枚の画像をアップロードできず、送信されませんでした。'
             : `${count}枚の画像をアップロードできず、送信されませんでした。`,
         notSupportedTitle: '画像はサポートされていません',
-        notSupportedMessage: 'このエージェントは画像の添付に対応していません。テキストのみが送信されました。',
+        notSupportedMessage: 'このエージェントは画像の添付に対応していません。画像は送信されませんでした。',
         addTitle: '添付ファイルを追加',
         optionLibrary: 'フォトライブラリ',
         optionCamera: '写真を撮る',

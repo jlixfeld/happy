@@ -216,8 +216,8 @@ export const it: TranslationStructure = {
         disableAnalytics: 'Disabilita analisi',
         analyticsDisabled: 'Tutto il tracciamento e la telemetria disabilitati',
         analyticsEnabled: 'Analisi anonime di utilizzo attive',
-        imageUpload: 'Allegati',
-        imageUploadSubtitle: 'Allega immagini e file ai messaggi per l\'analisi di Claude',
+        imageUpload: 'Caricamento immagini',
+        imageUploadSubtitle: 'Allega immagini ai messaggi per farle analizzare dagli agenti supportati',
     },
 
     errors: {
@@ -408,6 +408,13 @@ export const it: TranslationStructure = {
             runIt: 'Avviala',
             scanQrCode: 'Scansiona il codice QR',
             openCamera: 'Apri fotocamera',
+        },
+        agentGoalBar: {
+            currentGoal: 'Obiettivo attuale',
+            accessibilityLabel: ({ goal }: { goal: string }) => `Obiettivo attuale: ${goal}`,
+            clearGoal: 'Cancella obiettivo',
+            stopGoal: 'Ferma obiettivo',
+            editGoal: 'Modifica obiettivo',
         },
     },
 
@@ -836,6 +843,7 @@ export const it: TranslationStructure = {
         switchedToMode: ({ mode }: { mode: string }) => `Passato alla modalità ${mode}`,
         unknownEvent: 'Evento sconosciuto',
         usageLimitUntil: ({ time }: { time: string }) => `Limite di utilizzo raggiunto fino a ${time}`,
+        sentAsGoal: 'Sent as goal',
         unknownTime: 'ora sconosciuta',
     },
 
@@ -982,7 +990,7 @@ export const it: TranslationStructure = {
             ? 'Un\'immagine non è stata caricata e non è stata inviata.'
             : `Non è stato possibile caricare ${count} immagini e non sono state inviate.`,
         notSupportedTitle: 'Immagini non supportate',
-        notSupportedMessage: 'Questo agente non supporta gli allegati immagine. È stato inviato solo il testo.',
+        notSupportedMessage: 'Questo agente non supporta gli allegati immagine. Le immagini non sono state inviate.',
         addTitle: 'Aggiungi allegato',
         optionLibrary: 'Libreria foto',
         optionCamera: 'Scatta foto',

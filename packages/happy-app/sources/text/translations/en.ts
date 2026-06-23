@@ -232,8 +232,8 @@ export const en: TranslationStructure = {
         disableAnalytics: 'Disable Analytics',
         analyticsDisabled: 'All tracking and telemetry disabled',
         analyticsEnabled: 'Anonymous usage analytics active',
-        imageUpload: 'Attachments',
-        imageUploadSubtitle: 'Attach images and files to messages for Claude to analyze',
+        imageUpload: 'Image Upload',
+        imageUploadSubtitle: 'Attach images to messages for supported agents to analyze',
     },
 
     errors: {
@@ -424,6 +424,13 @@ export const en: TranslationStructure = {
             runIt: 'Run it',
             scanQrCode: 'Scan the QR code',
             openCamera: 'Open Camera',
+        },
+        agentGoalBar: {
+            currentGoal: 'Current goal',
+            accessibilityLabel: ({ goal }: { goal: string }) => `Current goal: ${goal}`,
+            clearGoal: 'Clear goal',
+            stopGoal: 'Stop goal',
+            editGoal: 'Edit goal',
         },
     },
 
@@ -852,6 +859,7 @@ export const en: TranslationStructure = {
         switchedToMode: ({ mode }: { mode: string }) => `Switched to ${mode} mode`,
         unknownEvent: 'Unknown event',
         usageLimitUntil: ({ time }: { time: string }) => `Usage limit reached until ${time}`,
+        sentAsGoal: 'Sent as goal',
         unknownTime: 'unknown time',
     },
 
@@ -998,7 +1006,7 @@ export const en: TranslationStructure = {
             ? 'One image could not be uploaded and was not sent.'
             : `${count} images could not be uploaded and were not sent.`,
         notSupportedTitle: 'Images Not Supported',
-        notSupportedMessage: 'This agent does not support image attachments. Only the text was sent.',
+        notSupportedMessage: 'This agent does not support image attachments. Images were not sent.',
         addTitle: 'Add Attachment',
         optionLibrary: 'Photo Library',
         optionCamera: 'Take Photo',

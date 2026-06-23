@@ -1,13 +1,14 @@
 /**
- * Image picker hook for attaching images and files to messages.
+ * Image/file picker hook for attaching content to messages.
  *
- * Exposes:
- *   - pickImages  — gallery picker (expo-image-picker), with HEIC→JPEG and
- *                   downscale normalization via attachmentNormalize.ts
- *   - takePhoto   — camera capture (expo-image-picker), same normalization
+ * Built on the upstream gallery + normalize foundation, extended with:
+ *   - takePhoto   — camera capture (expo-image-picker), same normalize path
  *   - pickFiles   — document picker (expo-document-picker), no normalization
+ *   - pasteImage  — clipboard image (expo-clipboard), staged then normalized
  *
- * Enforces limits: max 20 attachments per message, 10MB per file.
+ * Image assets (gallery/camera/paste) run through normalizePickedAssetForUpload
+ * (iOS HEIC→JPEG re-encode). Enforces limits: max 20 attachments per message,
+ * 10MB per file.
  *
  * Note: fileSize from expo-image-picker is optional — some platforms do not
  * provide it (returns undefined → size=0). Such files pass the client-side
@@ -18,6 +19,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import * as Clipboard from 'expo-clipboard';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { writeAsStringAsync, cacheDirectory, EncodingType } from 'expo-file-system/legacy';
 import { randomUUID } from 'expo-crypto';
 import { Platform } from 'react-native';
@@ -25,11 +27,10 @@ import { Modal } from '@/modal';
 import { generateThumbhash } from '@/utils/thumbhash';
 import { t } from '@/text';
 import type { AttachmentPreview } from '@/sync/attachmentTypes';
-import { planImageNormalization } from '@/utils/attachmentNormalize';
-import { normalizeImage } from '@/utils/attachmentNormalizeApply';
 
 export const MAX_IMAGES_PER_MESSAGE = 20;
 export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const IOS_ATTACHMENT_JPEG_QUALITY = 0.92;
 
 export type { AttachmentPreview };
 
@@ -43,6 +44,45 @@ type UseImagePickerResult = {
     clearImages: () => void;
     addImages: (images: AttachmentPreview[]) => void;
 };
+
+function withJpegExtension(fileName: string | null | undefined): string {
+    const fallback = `image_${Date.now()}.jpg`;
+    const name = fileName?.trim() || fallback;
+    const extensionIndex = name.lastIndexOf('.');
+    const stem = extensionIndex > 0 ? name.slice(0, extensionIndex) : name;
+    return `${stem}.jpg`;
+}
+
+export async function normalizePickedAssetForUpload(asset: ImagePicker.ImagePickerAsset): Promise<{
+    uri: string;
+    width: number;
+    height: number;
+    mimeType: string;
+    name: string;
+}> {
+    if (Platform.OS !== 'ios') {
+        return {
+            uri: asset.uri,
+            width: asset.width,
+            height: asset.height,
+            mimeType: asset.mimeType ?? 'image/jpeg',
+            name: asset.fileName ?? `image_${Date.now()}.jpg`,
+        };
+    }
+
+    const converted = await manipulateAsync(asset.uri, [], {
+        compress: IOS_ATTACHMENT_JPEG_QUALITY,
+        format: SaveFormat.JPEG,
+    });
+
+    return {
+        uri: converted.uri,
+        width: converted.width || asset.width,
+        height: converted.height || asset.height,
+        mimeType: 'image/jpeg',
+        name: withJpegExtension(asset.fileName),
+    };
+}
 
 export function useImagePicker(): UseImagePickerResult {
     const [selectedImages, setSelectedImages] = useState<AttachmentPreview[]>([]);
@@ -67,50 +107,37 @@ export function useImagePicker(): UseImagePickerResult {
         return true;
     }, []);
 
-    // Shared by gallery + camera: enforce size cap, normalize (HEIC→JPEG,
-    // downscale >1568px — see attachmentNormalize.ts), generate thumbhash.
-    const assetsToPreviews = useCallback(async (assets: ImagePicker.ImagePickerAsset[]): Promise<AttachmentPreview[]> => {
-        const previews: AttachmentPreview[] = [];
-        for (const asset of assets) {
-            let { uri, width, height } = asset;
-            let mimeType = asset.mimeType ?? undefined;
-            let size = asset.fileSize ?? 0;
+    // Shared by gallery + camera + paste: enforce size cap, normalize the asset
+    // (iOS HEIC→JPEG via normalizePickedAssetForUpload), generate thumbhash.
+    const buildImagePreview = useCallback(async (asset: ImagePicker.ImagePickerAsset): Promise<AttachmentPreview | null> => {
+        const size = asset.fileSize ?? 0;
 
-            const plan = planImageNormalization({ mimeType, width, height });
-            const normalized = await normalizeImage(uri, plan, mimeType).catch(() => null);
-            if (normalized) {
-                uri = normalized.uri;
-                width = normalized.width;
-                height = normalized.height;
-                mimeType = normalized.mimeType;
-                size = 0; // unknown after re-encode; server enforces the cap
-            }
-
-            if (size > MAX_FILE_SIZE) {
-                Modal.alert(
-                    t('imageUpload.fileTooLargeTitle'),
-                    t('imageUpload.fileTooLargeMessage', { name: asset.fileName ?? 'image', maxMb: 10 }),
-                    [{ text: t('common.ok') }],
-                );
-                continue;
-            }
-
-            const thumbhash = (width > 0 && height > 0)
-                ? await generateThumbhash(uri, width, height)
-                : undefined;
-
-            previews.push({
-                id: `${Date.now()}_${Math.random().toString(36).slice(2)}`,
-                uri,
-                width,
-                height,
-                mimeType: mimeType ?? 'image/jpeg',
-                size,
-                name: asset.fileName ?? `image_${Date.now()}.jpg`,
-                thumbhash,
-            });
+        if (size > MAX_FILE_SIZE) {
+            Modal.alert(
+                t('imageUpload.fileTooLargeTitle'),
+                t('imageUpload.fileTooLargeMessage', { name: asset.fileName ?? 'image', maxMb: 10 }),
+                [{ text: t('common.ok') }],
+            );
+            return null;
         }
-        return previews;
+
+        const normalized = await normalizePickedAssetForUpload(asset);
+
+        // Skip thumbhash if dimensions are unavailable (prevents divide-by-zero).
+        const thumbhash = (normalized.width > 0 && normalized.height > 0)
+            ? await generateThumbhash(normalized.uri, normalized.width, normalized.height)
+            : undefined;
+
+        return {
+            id: `${Date.now()}_${Math.random().toString(36).slice(2)}`,
+            uri: normalized.uri,
+            width: normalized.width,
+            height: normalized.height,
+            mimeType: normalized.mimeType,
+            size,
+            name: normalized.name,
+            thumbhash,
+        };
     }, []);
 
     const pickImages = useCallback(async () => {
@@ -131,7 +158,7 @@ export function useImagePicker(): UseImagePickerResult {
             mediaTypes: ['images'], // expo-image-picker ~55: MediaTypeOptions deprecated
             allowsMultipleSelection: true,
             selectionLimit: remaining,
-            quality: 1, // normalization handles size/format downstream
+            quality: 1, // request full-resolution source; iOS upload is normalized below
             exif: false,
         });
 
@@ -139,12 +166,16 @@ export function useImagePicker(): UseImagePickerResult {
 
         // On web, selectionLimit is not enforced by the browser — clamp here.
         const assets = result.assets.slice(0, remaining);
-        const previews = await assetsToPreviews(assets);
+        const previews: AttachmentPreview[] = [];
+        for (const asset of assets) {
+            const preview = await buildImagePreview(asset);
+            if (preview) previews.push(preview);
+        }
 
         if (previews.length > 0) {
             setSelectedImages(prev => [...prev, ...previews].slice(0, MAX_IMAGES_PER_MESSAGE));
         }
-    }, [requestPermission, assetsToPreviews]);
+    }, [requestPermission, buildImagePreview]);
 
     const takePhoto = useCallback(async () => {
         if (Platform.OS !== 'web') {
@@ -169,16 +200,20 @@ export function useImagePicker(): UseImagePickerResult {
 
         const result = await ImagePicker.launchCameraAsync({
             mediaTypes: ['images'],
-            quality: 1, // normalization handles size/format downstream
+            quality: 1, // full-resolution source; upload is normalized below
             exif: false,
         });
         if (result.canceled || !result.assets.length) return;
 
-        const previews = await assetsToPreviews(result.assets);
+        const previews: AttachmentPreview[] = [];
+        for (const asset of result.assets) {
+            const preview = await buildImagePreview(asset);
+            if (preview) previews.push(preview);
+        }
         if (previews.length > 0) {
             setSelectedImages(prev => [...prev, ...previews].slice(0, MAX_IMAGES_PER_MESSAGE));
         }
-    }, [assetsToPreviews]);
+    }, [buildImagePreview]);
 
     const pickFiles = useCallback(async () => {
         const remaining = MAX_IMAGES_PER_MESSAGE - selectedCountRef.current;
@@ -265,11 +300,11 @@ export function useImagePicker(): UseImagePickerResult {
             fileSize: undefined,
         } as ImagePicker.ImagePickerAsset;
 
-        const previews = await assetsToPreviews([asset]);
-        if (previews.length > 0) {
-            setSelectedImages(prev => [...prev, ...previews].slice(0, MAX_IMAGES_PER_MESSAGE));
+        const preview = await buildImagePreview(asset);
+        if (preview) {
+            setSelectedImages(prev => [...prev, preview].slice(0, MAX_IMAGES_PER_MESSAGE));
         }
-    }, [assetsToPreviews]);
+    }, [buildImagePreview]);
 
     const removeImage = useCallback((id: string) => {
         setSelectedImages(prev => prev.filter(img => img.id !== id));
