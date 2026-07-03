@@ -36,22 +36,22 @@ describe('modelModeOptions', () => {
         const models = getClaudeModelModes();
         expect(models.map((model) => model.key)).toEqual([
             'default',
-            'claude-fable-5',
+            'fable',
             'opus',
             'claude-opus-4-8[1m]',
             'sonnet',
             'haiku',
         ]);
-        // Fable 5 and the 1M variant are new entries with no short alias, so the
-        // picker sends the full model id; the CLI passes it through unchanged.
-        expect(models.find((model) => model.key === 'claude-fable-5')?.name).toBe('fable 5');
+        // Fable 5 uses upstream's short alias; the 1M opus variant has no alias,
+        // so the picker sends its full model id and the CLI passes it through.
+        expect(models.find((model) => model.key === 'fable')?.name).toBe('fable 5');
         expect(models.find((model) => model.key === 'claude-opus-4-8[1m]')?.name).toBe('opus 4.8 (1M)');
     });
 
     it('gates claude effort levels per model', () => {
         const keys = (modelKey: string) => getEffortLevelsForModel('claude', modelKey).map((l) => l.key);
         // Fable 5 / Opus 4.8 (+ 1M variant) / the opus alias: full set incl. xhigh + max.
-        expect(keys('claude-fable-5')).toEqual(['low', 'medium', 'high', 'xhigh', 'max']);
+        expect(keys('fable')).toEqual(['low', 'medium', 'high', 'xhigh', 'max']);
         expect(keys('opus')).toEqual(['low', 'medium', 'high', 'xhigh', 'max']);
         expect(keys('claude-opus-4-8[1m]')).toEqual(['low', 'medium', 'high', 'xhigh', 'max']);
         // Sonnet 4.6 and Opus 4.6: max but no xhigh.
