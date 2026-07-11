@@ -875,6 +875,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                             <SessionStatusBar
                                                 gitBranch={props.sessionStatusGitBranch}
                                                 modelLabel={props.sessionStatusModelLabel ?? null}
+                                                modelMode={props.modelMode}
                                                 effortLabel={props.sessionStatusEffortLabel ?? null}
                                                 contextSize={props.usageData?.contextSize}
                                                 contextWindow={props.usageData?.contextWindow}
