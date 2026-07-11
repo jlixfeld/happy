@@ -84,6 +84,24 @@ export async function normalizePickedAssetForUpload(asset: ImagePicker.ImagePick
     };
 }
 
+// Photo-library picker options. `preferredAssetRepresentationMode: Compatible`
+// forces iOS to transcode HEIC→JPEG at pick time. Without it, SDK 54 returns the
+// original HDR HEIC (16 bits/component); expo-image-manipulator's mandatory
+// fix-orientation step then can't allocate an 8-bit CGContext for it and throws
+// "Image context has been lost", so the thumbnail never appears. An 8-bit JPEG
+// re-encodes fine — the same format the working clipboard-paste path uses.
+// Exported so a regression test can pin the transcode option.
+export function buildImageLibraryPickerOptions(selectionLimit: number): ImagePicker.ImagePickerOptions {
+    return {
+        mediaTypes: ['images'], // expo-image-picker ~55: MediaTypeOptions deprecated
+        allowsMultipleSelection: true,
+        selectionLimit,
+        quality: 1, // request full-resolution source; iOS upload is normalized below
+        exif: false,
+        preferredAssetRepresentationMode: ImagePicker.UIImagePickerPreferredAssetRepresentationMode.Compatible,
+    };
+}
+
 export function useImagePicker(): UseImagePickerResult {
     const [selectedImages, setSelectedImages] = useState<AttachmentPreview[]>([]);
     // Ref tracks current count to avoid stale closures on rapid taps.
@@ -170,13 +188,7 @@ export function useImagePicker(): UseImagePickerResult {
             return;
         }
 
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'], // expo-image-picker ~55: MediaTypeOptions deprecated
-            allowsMultipleSelection: true,
-            selectionLimit: remaining,
-            quality: 1, // request full-resolution source; iOS upload is normalized below
-            exif: false,
-        });
+        const result = await ImagePicker.launchImageLibraryAsync(buildImageLibraryPickerOptions(remaining));
 
         if (result.canceled || !result.assets.length) return;
 

@@ -15,6 +15,7 @@ vi.mock('react-native', () => ({
 vi.mock('expo-image-picker', () => ({
     requestMediaLibraryPermissionsAsync: mocks.requestMediaLibraryPermissionsAsync,
     launchImageLibraryAsync: mocks.launchImageLibraryAsync,
+    UIImagePickerPreferredAssetRepresentationMode: { Automatic: 'automatic', Compatible: 'compatible', Current: 'current' },
 }));
 
 vi.mock('expo-image-manipulator', () => ({
@@ -54,7 +55,19 @@ vi.mock('expo-crypto', () => ({
     randomUUID: () => 'test-uuid',
 }));
 
-import { normalizePickedAssetForUpload } from './useImagePicker';
+import { buildImageLibraryPickerOptions, normalizePickedAssetForUpload } from './useImagePicker';
+
+describe('buildImageLibraryPickerOptions', () => {
+    it('requests the HEIC->JPEG compatible representation to avoid the manipulator context loss', () => {
+        // preferredAssetRepresentationMode: 'compatible' makes iOS transcode HDR
+        // HEIC to 8-bit JPEG at pick time; without it expo-image-manipulator's
+        // fix-orientation step throws "Image context has been lost" (no thumbnail).
+        const options = buildImageLibraryPickerOptions(7);
+        expect(options.preferredAssetRepresentationMode).toBe('compatible');
+        expect(options.selectionLimit).toBe(7);
+        expect(options.mediaTypes).toEqual(['images']);
+    });
+});
 
 describe('normalizePickedAssetForUpload', () => {
     beforeEach(() => {
