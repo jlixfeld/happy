@@ -21,6 +21,7 @@ interface NewSessionDraftState {
     agentType: NewSessionAgentType;
     permissionMode: PermissionModeKey | null;
     modelMode: string | null;
+    effortLevel: string | null;
     sessionType: NewSessionSessionType;
     worktreeKey: string | null;
     attachments: AttachmentPreview[];
@@ -31,6 +32,7 @@ interface NewSessionDraftState {
     setAgentType: (agent: NewSessionAgentType) => void;
     setPermissionMode: (mode: PermissionModeKey) => void;
     setModelMode: (mode: string) => void;
+    setEffortLevel: (level: string) => void;
     setSessionType: (type: NewSessionSessionType) => void;
     setWorktreeKey: (key: string | null) => void;
     setAttachments: (attachments: AttachmentPreview[]) => void;
@@ -44,6 +46,7 @@ function persist(state: NewSessionDraftState) {
         agentType: state.agentType,
         permissionMode: state.permissionMode,
         modelMode: state.modelMode,
+        effortLevel: state.effortLevel,
         sessionType: state.sessionType,
         worktreeKey: state.worktreeKey,
         attachments: state.attachments,
@@ -60,6 +63,7 @@ export const useNewSessionDraft = create<NewSessionDraftState>()((set, get) => (
     agentType: initial?.agentType ?? 'claude',
     permissionMode: initial?.permissionMode ?? null,
     modelMode: initial?.modelMode ?? null,
+    effortLevel: initial?.effortLevel ?? null,
     sessionType: initial?.sessionType ?? 'simple',
     worktreeKey: initial?.worktreeKey ?? null,
     attachments: initial?.attachments ?? [],
@@ -70,6 +74,7 @@ export const useNewSessionDraft = create<NewSessionDraftState>()((set, get) => (
     setAgentType: (agent) => { set({ agentType: agent }); persist(get()); },
     setPermissionMode: (mode) => { set({ permissionMode: mode }); persist(get()); },
     setModelMode: (mode) => { set({ modelMode: mode }); persist(get()); },
+    setEffortLevel: (level) => { set({ effortLevel: level }); persist(get()); },
     setSessionType: (type) => { set({ sessionType: type }); persist(get()); },
     setWorktreeKey: (key) => { set({ worktreeKey: key }); persist(get()); },
     setAttachments: (attachments) => { set({ attachments }); persist(get()); },

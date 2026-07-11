@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+    getAgyModelModes,
     getAvailableModels,
     getAvailablePermissionModes,
     getClaudeModelModes,
@@ -69,6 +70,9 @@ describe('modelModeOptions', () => {
         const models = getCodexModelModes();
         expect(models.map((model) => model.key)).toEqual([
             'default',
+            'gpt-5.6-sol',
+            'gpt-5.6-terra',
+            'gpt-5.6-luna',
             'gpt-5.5',
             'gpt-5.4',
             'gpt-5.3-codex',
@@ -78,7 +82,7 @@ describe('modelModeOptions', () => {
             'gpt-5.1-codex-mini',
         ]);
         expect(models[0].name).toBe('default model');
-        expect(models[1].name).toBe('gpt-5.5');
+        expect(models[1].name).toBe('gpt-5.6 sol');
     });
 
     it('uses code defaults for agent defaults', () => {
@@ -121,6 +125,7 @@ describe('modelModeOptions', () => {
         } as any, translate);
 
         expect(modes.map((mode) => mode.key)).toEqual(['default', 'read-only', 'safe-yolo', 'yolo']);
+        expect(modes.find((mode) => mode.key === 'safe-yolo')?.description).toBe('tr:agentInput.codexPermissionMode.safeYoloDescription');
     });
 
     it('applies hacks to metadata-provided operating modes', () => {
@@ -135,6 +140,21 @@ describe('modelModeOptions', () => {
             { key: 'build', name: 'Build', description: 'Do build steps' },
             { key: 'plan', name: 'Plan', description: 'Plan first' },
         ]);
+    });
+
+    it('gives agy its own models, not the claude fallback', () => {
+        const models = getAvailableModels('agy', null, translate);
+        // must be agy's own list, not claude's opus/sonnet/haiku
+        expect(models).toEqual(getAgyModelModes());
+        const keys = models.map((m) => m.key);
+        // the agentDefaults agy default must be selectable
+        expect(keys).toContain('Gemini 3.1 Pro (High)');
+        expect(getDefaultModelKey('agy')).toBe('Gemini 3.1 Pro (High)');
+        // no 'default' entry — agy would receive the literal string "default" as --model
+        expect(keys).not.toContain('default');
+        // not the claude list
+        expect(keys).not.toContain('opus');
+        expect(keys).not.toContain('sonnet');
     });
 
     it('resolves the first matching preferred key', () => {
