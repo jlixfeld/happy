@@ -335,8 +335,6 @@ const getContextWarning = (contextSize: number, alwaysShow: boolean = false, the
 type StatusRowProps = {
     connectionStatus?: AgentInputProps['connectionStatus'];
     contextWarning: { text: string; color: string } | null;
-    modelName?: string | null;
-    effortName?: string | null;
     displayPermissionMode: ReturnType<typeof hackMode> | null;
     permissionModeKey: string;
     isSandboxedYoloMode: boolean;
@@ -398,7 +396,7 @@ const AgentInputStatusRow = React.memo(function AgentInputStatusRow(p: StatusRow
         && p.permissionModeKey !== 'default'
         && !p.zenMode
         && !!p.permissionLabel;
-    if (!p.connectionStatus && !p.contextWarning && !showPermissionBadge && !p.modelName && !p.effortName) {
+    if (!p.connectionStatus && !p.contextWarning && !showPermissionBadge) {
         return null;
     }
     return (
@@ -483,32 +481,14 @@ const AgentInputStatusRow = React.memo(function AgentInputStatusRow(p: StatusRow
                         )}
                     </>
                 )}
-                {p.modelName && (
-                    <Text style={{
-                        fontSize: 11,
-                        color: theme.colors.textSecondary,
-                        ...Typography.default()
-                    }}>
-                        {p.connectionStatus ? '• ' : ''}{p.modelName}
-                    </Text>
-                )}
-                {p.effortName && (
-                    <Text style={{
-                        fontSize: 11,
-                        color: theme.colors.textSecondary,
-                        ...Typography.default()
-                    }}>
-                        {(p.connectionStatus || p.modelName) ? '• ' : ''}{p.effortName}
-                    </Text>
-                )}
                 {p.contextWarning && (
                     <Text style={{
                         fontSize: 11,
                         color: p.contextWarning.color,
-                        marginLeft: (p.connectionStatus || p.modelName || p.effortName) ? 8 : 0,
+                        marginLeft: p.connectionStatus ? 8 : 0,
                         ...Typography.default()
                     }}>
-                        {(p.connectionStatus || p.modelName || p.effortName) ? '• ' : ''}{p.contextWarning.text}
+                        {p.connectionStatus ? '• ' : ''}{p.contextWarning.text}
                     </Text>
                 )}
             </View>
@@ -1201,8 +1181,6 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                 <AgentInputStatusRow
                     connectionStatus={props.connectionStatus}
                     contextWarning={contextWarning}
-                    modelName={props.modelMode?.name}
-                    effortName={props.effortLevel?.name}
                     displayPermissionMode={displayPermissionMode}
                     permissionModeKey={permissionModeKey}
                     isSandboxedYoloMode={isSandboxedYoloMode}
