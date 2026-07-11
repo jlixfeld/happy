@@ -121,23 +121,39 @@ export function useImagePicker(): UseImagePickerResult {
             return null;
         }
 
-        const normalized = await normalizePickedAssetForUpload(asset);
+        try {
+            const normalized = await normalizePickedAssetForUpload(asset);
 
-        // Skip thumbhash if dimensions are unavailable (prevents divide-by-zero).
-        const thumbhash = (normalized.width > 0 && normalized.height > 0)
-            ? await generateThumbhash(normalized.uri, normalized.width, normalized.height)
-            : undefined;
+            // Skip thumbhash if dimensions are unavailable (prevents divide-by-zero).
+            const thumbhash = (normalized.width > 0 && normalized.height > 0)
+                ? await generateThumbhash(normalized.uri, normalized.width, normalized.height)
+                : undefined;
 
-        return {
-            id: `${Date.now()}_${Math.random().toString(36).slice(2)}`,
-            uri: normalized.uri,
-            width: normalized.width,
-            height: normalized.height,
-            mimeType: normalized.mimeType,
-            size,
-            name: normalized.name,
-            thumbhash,
-        };
+            return {
+                id: `${Date.now()}_${Math.random().toString(36).slice(2)}`,
+                uri: normalized.uri,
+                width: normalized.width,
+                height: normalized.height,
+                mimeType: normalized.mimeType,
+                size,
+                name: normalized.name,
+                thumbhash,
+            };
+        } catch (e) {
+            // Surface the native failure instead of swallowing it. The picker
+            // loops discard a rejected buildImagePreview (→ no thumbnail, no
+            // feedback), which is why library selection failed silently while
+            // paste worked. Expo SDK 54 returns library photos in their
+            // original format (HEIC/AVIF); the iOS JPEG re-encode in
+            // normalizePickedAssetForUpload can throw on those assets. Showing
+            // the real error string tells us exactly what to fix next.
+            Modal.alert(
+                t('imageUpload.uploadFailedTitle'),
+                e instanceof Error ? (e.message || String(e)) : String(e),
+                [{ text: t('common.ok') }],
+            );
+            return null;
+        }
     }, []);
 
     const pickImages = useCallback(async () => {
