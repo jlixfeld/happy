@@ -81,7 +81,7 @@ export function getClaudeModelModes(): ModelMode[] {
         { key: 'fable', name: 'fable 5', description: null },
         { key: 'opus', name: 'opus 4.8', description: null },
         { key: 'claude-opus-4-8[1m]', name: 'opus 4.8 (1M)', description: null },
-        { key: 'sonnet', name: 'sonnet 4.6', description: null },
+        { key: 'sonnet', name: 'sonnet 5', description: null },
         { key: 'haiku', name: 'haiku 4.5', description: null },
     ];
 }
@@ -286,9 +286,9 @@ export function getDefaultEffortKey(flavor: AgentFlavor): string | null {
 }
 
 // Effort support varies by Claude model (per platform.claude.com/docs/.../effort):
-//   - Fable 5 / Opus 4.8 / Opus 4.7: low, medium, high, xhigh, max
-//   - Sonnet 4.6 / Opus 4.6:         low, medium, high, max   (no xhigh)
-//   - Opus 4.5:                      low, medium, high        (no xhigh, no max)
+//   - Fable 5 / Opus 4.8 / Opus 4.7 / Sonnet 5: low, medium, high, xhigh, max
+//   - Sonnet 4.6 / Opus 4.6:                    low, medium, high, max   (no xhigh)
+//   - Opus 4.5:                                 low, medium, high        (no xhigh, no max)
 //   - Haiku 4.5:                     none — the effort parameter errors
 // Sending an unsupported level returns a 400, so the picker must only offer
 // what the selected model accepts.
@@ -311,8 +311,10 @@ function getClaudeEffortLevelsForModel(modelKey: string): EffortLevel[] {
     const m = modelKey.toLowerCase();
     // Haiku exposes no effort parameter at all.
     if (m.includes('haiku')) return [];
-    // Sonnet 4.6 and Opus 4.6 support max but not xhigh.
-    if (m.includes('sonnet') || m.includes('opus-4-6')) return CLAUDE_EFFORT_NO_XHIGH;
+    // Sonnet 4.6 and Opus 4.6 support max but not xhigh. The bare `sonnet` alias
+    // now resolves to Sonnet 5 (which supports xhigh), so only the pinned 4.6 id
+    // is gated here — bare `sonnet` / `sonnet-5` fall through to the full set.
+    if (m.includes('sonnet-4-6') || m.includes('opus-4-6')) return CLAUDE_EFFORT_NO_XHIGH;
     // Opus 4.5 supports neither xhigh nor max.
     if (m.includes('opus-4-5')) return CLAUDE_EFFORT_BASIC;
     // Fable/Mythos, Opus 4.7/4.8 (incl. the `opus` alias → latest and the [1m]

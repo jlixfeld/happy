@@ -47,6 +47,8 @@ describe('modelModeOptions', () => {
         // so the picker sends its full model id and the CLI passes it through.
         expect(models.find((model) => model.key === 'fable')?.name).toBe('fable 5');
         expect(models.find((model) => model.key === 'claude-opus-4-8[1m]')?.name).toBe('opus 4.8 (1M)');
+        // Bare `sonnet` resolves to the latest Sonnet (Sonnet 5) — label must match.
+        expect(models.find((model) => model.key === 'sonnet')?.name).toBe('sonnet 5');
     });
 
     it('gates claude effort levels per model', () => {
@@ -55,8 +57,11 @@ describe('modelModeOptions', () => {
         expect(keys('fable')).toEqual(['low', 'medium', 'high', 'xhigh', 'max']);
         expect(keys('opus')).toEqual(['low', 'medium', 'high', 'xhigh', 'max']);
         expect(keys('claude-opus-4-8[1m]')).toEqual(['low', 'medium', 'high', 'xhigh', 'max']);
-        // Sonnet 4.6 and Opus 4.6: max but no xhigh.
-        expect(keys('sonnet')).toEqual(['low', 'medium', 'high', 'max']);
+        // Sonnet 5 (the bare `sonnet` alias resolves to it) supports xhigh.
+        expect(keys('sonnet')).toEqual(['low', 'medium', 'high', 'xhigh', 'max']);
+        expect(keys('claude-sonnet-5')).toEqual(['low', 'medium', 'high', 'xhigh', 'max']);
+        // Pinned Sonnet 4.6 and Opus 4.6: max but no xhigh.
+        expect(keys('claude-sonnet-4-6')).toEqual(['low', 'medium', 'high', 'max']);
         expect(keys('claude-opus-4-6')).toEqual(['low', 'medium', 'high', 'max']);
         // Opus 4.5: neither xhigh nor max.
         expect(keys('claude-opus-4-5')).toEqual(['low', 'medium', 'high']);
